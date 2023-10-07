@@ -1,11 +1,13 @@
 package src.main;
 
+import src.inputs.KeyboardInputs;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel {
     public GamePanel(){
-
+        addKeyListener(new KeyboardInputs());
     }
 
     @Override
