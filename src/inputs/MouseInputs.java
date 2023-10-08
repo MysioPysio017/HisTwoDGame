@@ -15,12 +15,12 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("test");
+
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        System.out.println("move");
+
     }
 
     @Override
