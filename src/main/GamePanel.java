@@ -3,27 +3,60 @@ package src.main;
 import src.inputs.KeyboardInputs;
 import src.inputs.MouseInputs;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Random;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class GamePanel extends JPanel {
     private float xDelta = 100, yDelta = 100;
 
-    private float xDir = 0.03f, yDir = 0.03f;
-
-    private int frames = 0;
-    private long lastCheck = 0;
-    private Color color = new Color(20, 50, 80);
-    private Random random;
-
     private MouseInputs mouseInputs;
+
+    private BufferedImage img, subImg;
+    private BufferedImage[] idleAni;
+    private int aniTick, aniIndex, aniSpeed = 15;
     public GamePanel(){
-        random = new Random();
         mouseInputs = new MouseInputs(this);
+
+        importImg();
+        loadAnimations();
+
+        setPanelSize();
         addKeyListener(new KeyboardInputs(this));
         addMouseListener(mouseInputs);
         addMouseMotionListener(mouseInputs);
+    }
+
+    private void loadAnimations() {
+        idleAni = new BufferedImage[5];
+
+        for (int i = 0; i< idleAni.length; i++){
+            idleAni[i] = img.getSubimage(i*64, 0, 64, 40);
+        }
+    }
+
+    private void importImg() {
+        InputStream is = getClass().getResourceAsStream("/res/player_sprites.png");
+
+        try {
+            img = ImageIO.read(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                is.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void setPanelSize() {
+        Dimension size = new Dimension(1280, 800);
+        setPreferredSize(size);
     }
 
     public void changexDelta(int value){
@@ -41,41 +74,24 @@ public class GamePanel extends JPanel {
         this.yDelta = y;
 
     }
+    private void updateAnimationTick() {
+        aniTick++;
+        if (aniTick>=aniSpeed){
+            aniTick = 0;
+            aniIndex ++;
+            if (aniIndex >= idleAni.length){
+                aniIndex = 0;
+            }
+        }
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        updateRecktangle();
-        g.setColor(color);
-        g.fillRect((int)xDelta, (int)yDelta, 200, 50);
 
-        frames ++;
-        if(System.currentTimeMillis() - lastCheck >= 1000){
-            lastCheck = System.currentTimeMillis();
-            System.out.println("FPS: " + frames);
-            frames = 0;
-        }
-        repaint();
-    }
-    private  void updateRecktangle(){
-        xDelta += xDir;
-        if (xDelta > 400 || xDelta < 0) {
-            xDir *= -1;
-            color = newRandColor();
-        }
+        updateAnimationTick();
 
-        yDelta += yDir;
-        if (yDelta > 400 || yDelta < 0) {
-            yDir *= -1;
-            color = newRandColor();
-        }
+        g.drawImage(idleAni[aniIndex], (int)xDelta, (int)yDelta, 128, 80, null);
     }
 
-    private Color newRandColor() {
-        int r = random.nextInt(255);
-        int g = random.nextInt(255);
-        int b = random.nextInt(255);
-
-        return new Color(r,g,b);
-    }
 }
